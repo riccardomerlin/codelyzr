@@ -1,3 +1,7 @@
+############################
+# MANUAL COMMANDS EXAMPLES #
+############################
+
 # *** GIT LOG ***
 # from the beginning of time
 # git log for gx and webtests

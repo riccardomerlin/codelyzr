@@ -1,37 +1,52 @@
-FROM clojure:alpine AS code-analysys
+FROM node:alpine AS code-analysys
 VOLUME /data
 
-RUN apk update && \
-    apk add git
-
 # install cloc - counts lines of code
-RUN apk update && \
-    apk add cloc
+RUN apk add --no-cache cloc
 
-# install phyton
-RUN apk update && \
-    apk add python2
+RUN apk add --no-cache git
+RUN apk add --no-cache python2
+RUN apk add --no-cache curl
+RUN apk add --no-cache bash
+RUN apk add --no-cache openjdk11
 
+# install clojure
+RUN curl -O https://download.clojure.org/install/linux-install-1.10.3.822.sh
+RUN chmod +x linux-install-1.10.3.822.sh
+RUN ./linux-install-1.10.3.822.sh
+
+# install Leiningen (Clojure compiler)
+RUN curl -O https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
+RUN chmod a+x lein
+RUN mv ./lein /usr/bin
+RUN lein
+
+# create main dest folder
 ARG dest=/usr/src/code-analysys
 
 RUN mkdir -p $dest
 
-# install code-maat
-ARG codemaatdest=/usr/src/code-analysys/code-maat
+# install maat-scripts
+WORKDIR $dest
+RUN git clone https://github.com/adamtornhill/maat-scripts.git maat-scripts
 
-RUN mkdir -p $codemaatdest
-WORKDIR $codemaatdest
-COPY code-maat/project.clj $codemaatdest
+# install code-maat
+RUN git clone https://github.com/adamtornhill/code-maat.git code-maat
+WORKDIR $dest/code-maat
 RUN lein deps
-COPY code-maat/ $codemaatdest
 RUN mv "$(lein uberjar | sed -n 's/^Created \(.*standalone\.jar\)/\1/p')" app-standalone.jar
 
+# install git-miner
 WORKDIR $dest
+RUN git clone https://github.com/riccardomerlin/git-miner.git git-miner
+WORKDIR $dest/git-miner
+RUN npm install
+RUN npm install -g
 
-RUN mkdir -p maat-scripts
-COPY maat-scripts/ ./maat-scripts/
+WORKDIR $dest
+# copy commands
+COPY hotspots.html .
+COPY complexity-file-trend.html .
 COPY code-analysis.sh .
 
-# ENTRYPOINT ["bash", "code-analysis.sh"]
-# CMD []
 CMD ["bash", "code-analysis.sh"]
