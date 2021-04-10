@@ -111,6 +111,7 @@ cd /data
 mkdir -p hotspots
 
 retrieveGitLogs
+countLinesOfCode
 calculateChangeFrequencies
 normalizeData
 calculateHotspots
