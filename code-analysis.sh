@@ -9,8 +9,15 @@ function logDone {
 }
 
 function retrieveGitLogs {
-   log "Retrieving git logs..."
-   git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames --after=2020-04-07 -- . ":(exclude)packges/*" ":(exclude)node_modules/*" ":(exclude)*/bower_components/*" ":(exclude)*/3rdParty/*" ":(exclude)*/bin/*" ":(exclude)*/test-bin/*" ":(exclude)*/obj/*" ":(exclude)dist/*" ":(exclude)_webtests/*" ":(exclude)WebTestSolution/*" > /data/hotspots/git.log
+   startDate=$1
+   if [ -z "$startDate" ]
+   then
+      log "Retrieving git logs since the beginning..."
+      git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames -- . ":(exclude)packges/*" ":(exclude)node_modules/*" ":(exclude)*/bower_components/*" ":(exclude)*/3rdParty/*" ":(exclude)*/bin/*" ":(exclude)*/test-bin/*" ":(exclude)*/obj/*" ":(exclude)dist/*" ":(exclude)_webtests/*" ":(exclude)WebTestSolution/*" > /data/hotspots/git.log
+   else
+      log "Retrieving git logs since ${startDate}..."
+      git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames --after=${startDate} -- . ":(exclude)packges/*" ":(exclude)node_modules/*" ":(exclude)*/bower_components/*" ":(exclude)*/3rdParty/*" ":(exclude)*/bin/*" ":(exclude)*/test-bin/*" ":(exclude)*/obj/*" ":(exclude)dist/*" ":(exclude)_webtests/*" ":(exclude)WebTestSolution/*" > /data/hotspots/git.log
+   fi
    logDone
 }
 
@@ -40,22 +47,24 @@ function normalizeData {
    sed --in-place --regexp-extended '/.*yarn\.lock.*/d' /data/hotspots/lines_by_file.csv
    sed --in-place --regexp-extended '/.*(app|Web|packages|Local)\.Config.*/d' /data/hotspots/lines_by_file.csv
    sed --in-place --regexp-extended '/.*\.sln.*/d' /data/hotspots/lines_by_file.csv
-   sed --in-place --regexp-extended '/.*ChangeSchema.sql.*/d' /data/hotspots/lines_by_file.csv
-   sed --in-place --regexp-extended '/.*CHANGELOG.md.*/d' /data/hotspots/lines_by_file.csv
-   sed --in-place --regexp-extended '/.*MigrationsList.cs.*/d' /data/hotspots/lines_by_file.csv
+   sed --in-place --regexp-extended '/.*ChangeSchema\.sql.*/d' /data/hotspots/lines_by_file.csv
+   sed --in-place --regexp-extended '/.*(Changelog|ChangeLog|changelog|changeLog|CHANGELOG)\.md.*/d' /data/hotspots/lines_by_file.csv
+   sed --in-place --regexp-extended '/.*MigrationsList\.cs.*/d' /data/hotspots/lines_by_file.csv
    sed --in-place --regexp-extended '/.*\.yml.*/d' /data/hotspots/lines_by_file.csv
    sed --in-place --regexp-extended '/.*\.yaml.*/d' /data/hotspots/lines_by_file.csv
+   sed --in-place --regexp-extended '/.*appsettings\.json.*/d' /data/hotspots/lines_by_file.csv
 
    sed --in-place --regexp-extended '/.*csproj.*/d' /data/hotspots/frequencies.csv
    sed --in-place --regexp-extended '/.*package(-lock)?\.json.*/d' /data/hotspots/frequencies.csv
    sed --in-place --regexp-extended '/.*yarn\.lock.*/d' /data/hotspots/frequencies.csv
    sed --in-place --regexp-extended '/.*(app|Web|packages|Local)\.Config.*/d' /data/hotspots/frequencies.csv
    sed --in-place --regexp-extended '/.*\.sln.*/d' /data/hotspots/frequencies.csv
-   sed --in-place --regexp-extended '/.*ChangeSchema.sql.*/d' /data/hotspots/frequencies.csv
-   sed --in-place --regexp-extended '/.*CHANGELOG.md.*/d' /data/hotspots/frequencies.csv
-   sed --in-place --regexp-extended '/.*MigrationsList.cs.*/d' /data/hotspots/frequencies.csv
+   sed --in-place --regexp-extended '/.*ChangeSchema\.sql.*/d' /data/hotspots/frequencies.csv
+   sed --in-place --regexp-extended '/.*(Changelog|ChangeLog|changelog|changeLog|CHANGELOG)\.md.*/d' /data/hotspots/frequencies.csv
+   sed --in-place --regexp-extended '/.*MigrationsList\.cs.*/d' /data/hotspots/frequencies.csv
    sed --in-place --regexp-extended '/.*\.yml.*/d' /data/hotspots/frequencies.csv
    sed --in-place --regexp-extended '/.*\.yaml.*/d' /data/hotspots/frequencies.csv
+   sed --in-place --regexp-extended '/.*appsettings\.json.*/d' /data/hotspots/frequencies.csv
 
    logDone
 }
@@ -75,7 +84,6 @@ function enclosingDiagrams {
 function top10Hotspots {
    log "Extracting top 10 hotspots..."
 
-   cd /data
    sed -r 's/,.+$//' /data/hotspots/freq_complexity.csv > /data/hotspots/temp.txt
    head -11 /data/hotspots/temp.txt | tail -n +2 > /data/hotspots/top10hotspots.txt
    rm /data/hotspots/temp.txt
@@ -86,11 +94,13 @@ function top10Hotspots {
 function complexityTrends {
    log "Calculating complexity trend per file..."
 
+   cd /data
+
    for line in {1..10}
    do
-      filename=$(head -n $line /data/hotspots/top10hotspots.txt | tail -1)
-      filename=$(basename $filename)
-      git-miner -- ${filename} > "/data/hotspots/complexity-trends/hotspot$line-$filename.csv"
+      filePath=$(head -n $line /data/hotspots/top10hotspots.txt | tail -1)
+      filename=$(basename $filePath)
+      git-miner -- ${filePath} > "/data/hotspots/complexity-trends/hotspot$line-$filename.csv"
    done
 
    logDone
@@ -109,7 +119,8 @@ cd /data
 mkdir -p hotspots
 mkdir -p hotspots/complexity-trends
 
-retrieveGitLogs
+startDate=$1
+retrieveGitLogs $startDate
 countLinesOfCode
 calculateChangeFrequencies
 normalizeData

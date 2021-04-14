@@ -49,4 +49,4 @@ COPY hotspots.html .
 COPY complexity-file-trend.html .
 COPY code-analysis.sh .
 
-CMD ["bash", "code-analysis.sh"]
+ENTRYPOINT ["bash", "code-analysis.sh"]

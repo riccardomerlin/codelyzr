@@ -10,7 +10,7 @@ docker build --tag code-analysis:latest .
 
 ### Run code analysis
 ```bash
-docker run -v <full-path-of-local-git-repo>:/data -t code-analysis
+docker run -v <full-path-of-local-git-repo>:/data -it code-analysis
 ```
 
 Extras
