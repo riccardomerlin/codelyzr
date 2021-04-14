@@ -86,8 +86,6 @@ function top10Hotspots {
 function complexityTrends {
    log "Calculating complexity trend per file..."
 
-   mkdir /data/hotspots/complexity-trends
-
    for line in {1..10}
    do
       filename=$(head -n $line /data/hotspots/top10hotspots.txt | tail -1)
@@ -109,6 +107,7 @@ function copyHtmlPages {
 
 cd /data
 mkdir -p hotspots
+mkdir -p hotspots/complexity-trends
 
 retrieveGitLogs
 countLinesOfCode
@@ -121,3 +120,4 @@ complexityTrends
 copyHtmlPages
 
 log "The End."
+echo
