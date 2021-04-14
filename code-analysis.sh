@@ -120,4 +120,4 @@ top10Hotspots
 complexityTrends
 copyHtmlPages
 
-echo "The End."
+log "The End."
