@@ -48,5 +48,6 @@ WORKDIR $dest
 COPY hotspots.html .
 COPY complexity-file-trend.html .
 COPY code-analysis.sh .
+COPY server.js .
 
 ENTRYPOINT ["bash", "code-analysis.sh"]

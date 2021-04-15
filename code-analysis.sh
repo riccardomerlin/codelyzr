@@ -34,6 +34,16 @@ function countLinesOfCode {
 function calculateChangeFrequencies {
    log "Calculating change frequency per file..."
 
+   # alternative way that requires formatting to have a csv than can be read by maat-scripts
+   # cd /data
+   # startDate=$1
+   # if [ -z "$startDate" ]
+   # then
+   #    git log --format=format: --name-only | grep -vE '^$' | sort | uniq -c | sort -r > /data/hotspots/frequencies.csv
+   # else
+   #    git log --format=format: --name-only --after=${startDate} | grep -vE '^$' | sort | uniq -c | sort -r > /data/hotspots/frequencies.csv
+   # fi
+
    cd /usr/src/code-analysys
    java -jar code-maat/app-standalone.jar -l /data/hotspots/git.log -c git2 -a revisions > /data/hotspots/frequencies.csv
    
@@ -99,18 +109,19 @@ function complexityTrends {
    for line in {1..10}
    do
       filePath=$(head -n $line /data/hotspots/top10hotspots.txt | tail -1)
-      filename=$(basename $filePath)
-      git-miner -- ${filePath} > "/data/hotspots/complexity-trends/hotspot$line-$filename.csv"
+      # filename=$(basename $filePath)
+      git-miner -- ${filePath} > "/data/hotspots/complexity-trends/hotspot$line.csv"
    done
 
    logDone
 }
 
-function copyHtmlPages {
-   log "Copying html pages..."
+function copyFiles {
+   log "Copying files..."
 
    cp /usr/src/code-analysys/complexity-file-trend.html /data/hotspots/complexity-trends
    cp /usr/src/code-analysys/hotspots.html /data/hotspots/
+   cp /usr/src/code-analysys/server.js /data/hotspots/
 
    logDone
 }
@@ -122,13 +133,13 @@ mkdir -p hotspots/complexity-trends
 startDate=$1
 retrieveGitLogs $startDate
 countLinesOfCode
-calculateChangeFrequencies
+calculateChangeFrequencies # $startDate
 normalizeData
 calculateHotspots
 enclosingDiagrams
 top10Hotspots
 complexityTrends
-copyHtmlPages
+copyFiles
 
 log "The End."
 echo
