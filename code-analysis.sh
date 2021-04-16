@@ -1,4 +1,15 @@
 #!/bin/bash
+
+cd /data
+DATA_FOLDER="/data"
+HOTSPOTS_FOLDER="$DATA_FOLDER/hotspots"
+mkdir -p "$HOTSPOTS_FOLDER"
+ANALYSIS_FOLDER_NAME=analysis-$(date +"%Y-%m-%dT%H-%M-%S")
+ANALYSIS_FOLDER=$HOTSPOTS_FOLDER/$ANALYSIS_FOLDER_NAME
+mkdir -p "$ANALYSIS_FOLDER"
+COMPLEXITY_TRENDS_FOLDER="$ANALYSIS_FOLDER/complexity-trends"
+mkdir -p "$COMPLEXITY_TRENDS_FOLDER"
+
 function log {
    currentDateTime=$(date +"%Y-%m-%d %T")
    echo -n "[$currentDateTime] $@" 1>&2
@@ -9,8 +20,9 @@ function logDone {
 }
 
 function retrieveGitLogs {
+   cd "$DATA_FOLDER"
    exclusions="./"
-   FILE="/data/hotspots/.pathExclusions"
+   FILE="$HOTSPOTS_FOLDER/.pathExclusions"
    if [ -f "$FILE" ]; then
       exclusions=$(sed 's/^/"\:\(exclude\)/' $FILE | sed 's/$/" /' | tr -d "\r\n")
    fi
@@ -19,10 +31,10 @@ function retrieveGitLogs {
    if [ -z "$startDate" ]
    then
       log "Retrieving git logs since the beginning..."
-      git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames -- . "$exclusions" > /data/hotspots/git.log
+      git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames -- . "$exclusions" > "$ANALYSIS_FOLDER/git.log"
    else
       log "Retrieving git logs since ${startDate}..."
-      git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames --after=${startDate} -- . "$exclusions" > /data/hotspots/git.log
+      git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames --after=${startDate} -- . "$exclusions" > "$ANALYSIS_FOLDER/git.log"
    fi
    logDone
 }
@@ -30,9 +42,9 @@ function retrieveGitLogs {
 function countLinesOfCode {
    log "Counting lines of code per file..."
 
-   cloc --vcs git --by-file --csv --quiet --unix --report-file=/data/hotspots/lines_by_file.csv --exclude-dir=coverage,3rdParty,SqlCompare,.vscode,packages,node_modules,bin,test-bin,_webtests,lib,services,web,obj,bower_components,WebTestSolution,dist
+   cloc --vcs git --by-file --csv --quiet --unix --report-file="$ANALYSIS_FOLDER/lines_by_file.csv" --exclude-dir=coverage,3rdParty,SqlCompare,.vscode,packages,node_modules,bin,test-bin,_webtests,lib,services,web,obj,bower_components,WebTestSolution,dist
    # remove last line that contain the SUM
-   head -n -1 /data/hotspots/lines_by_file.csv > /data/hotspots/temp.txt ; mv /data/hotspots/temp.txt /data/hotspots/lines_by_file.csv
+   head -n -1 "$ANALYSIS_FOLDER/lines_by_file.csv" > "$ANALYSIS_FOLDER/temp.txt" ; mv "$ANALYSIS_FOLDER/temp.txt" "$ANALYSIS_FOLDER/lines_by_file.csv"
    
    logDone
 }
@@ -51,40 +63,40 @@ function calculateChangeFrequencies {
    # fi
 
    cd /usr/src/code-analysys
-   java -jar code-maat/app-standalone.jar -l /data/hotspots/git.log -c git2 -a revisions > /data/hotspots/frequencies.csv
+   java -jar code-maat/app-standalone.jar -l "$ANALYSIS_FOLDER/git.log" -c git2 -a revisions > "$ANALYSIS_FOLDER/frequencies.csv"
    
    logDone
 }
 
 function normalizeData {
-   FILE="/data/hotspots/.fileExclusions"
+   FILE="$HOTSPOTS_FOLDER/.fileExclusions"
    if [ -f "$FILE" ]; then
       log "Data normalization..."
       regex=$(sed 's/^/|/' $FILE | tr -d "\r\n" | sed -r 's/^\|//')
-      sed --in-place --regexp-extended "/$regex/d" /data/hotspots/lines_by_file.csv
-      sed --in-place --regexp-extended "/$regex/d" /data/hotspots/frequencies.csv
+      sed --in-place --regexp-extended "/$regex/d" "$ANALYSIS_FOLDER/lines_by_file.csv"
+      sed --in-place --regexp-extended "/$regex/d" "$ANALYSIS_FOLDER/frequencies.csv"
       logDone
    fi
 }
 
 function calculateHotspots {
    log "Calculating hotspots..."
-   python maat-scripts/merge/merge_comp_freqs.py /data/hotspots/frequencies.csv /data/hotspots/lines_by_file.csv > /data/hotspots/freq_complexity.csv
+   python maat-scripts/merge/merge_comp_freqs.py "$ANALYSIS_FOLDER/frequencies.csv" "$ANALYSIS_FOLDER/lines_by_file.csv" > "$ANALYSIS_FOLDER/freq_complexity.csv"
    logDone
 }
 
 function enclosingDiagrams {
    log "Hotspots for enclosing diagrams..."
-   python maat-scripts/transform/csv_as_enclosure_json.py --structure /data/hotspots/lines_by_file.csv --weights /data/hotspots/frequencies.csv > /data/hotspots/hotspots.json
+   python maat-scripts/transform/csv_as_enclosure_json.py --structure "$ANALYSIS_FOLDER/lines_by_file.csv" --weights "$ANALYSIS_FOLDER/frequencies.csv" > "$ANALYSIS_FOLDER/hotspots.json"
    logDone
 }
 
 function top10Hotspots {
    log "Extracting top 10 hotspots..."
 
-   sed -r 's/,.+$//' /data/hotspots/freq_complexity.csv > /data/hotspots/temp.txt
-   head -11 /data/hotspots/temp.txt | tail -n +2 > /data/hotspots/top10hotspots.txt
-   rm /data/hotspots/temp.txt
+   sed -r 's/,.+$//' "$ANALYSIS_FOLDER/freq_complexity.csv" > "$ANALYSIS_FOLDER/temp.txt"
+   head -11 "$ANALYSIS_FOLDER/temp.txt" | tail -n +2 > "$ANALYSIS_FOLDER/top10hotspots.txt"
+   rm "$ANALYSIS_FOLDER/temp.txt"
 
    logDone
 }
@@ -96,9 +108,9 @@ function complexityTrends {
 
    for line in {1..10}
    do
-      filePath=$(head -n $line /data/hotspots/top10hotspots.txt | tail -1)
+      filePath=$(head -n $line $ANALYSIS_FOLDER/top10hotspots.txt | tail -1)
       # filename=$(basename $filePath)
-      git-miner -- ${filePath} > "/data/hotspots/complexity-trends/hotspot$line.csv"
+      git-miner -- ${filePath} > "$COMPLEXITY_TRENDS_FOLDER/hotspot$line.csv"
    done
 
    logDone
@@ -107,16 +119,12 @@ function complexityTrends {
 function copyFiles {
    log "Copying files..."
 
-   cp /usr/src/code-analysys/complexity-file-trend.html /data/hotspots/complexity-trends
-   cp /usr/src/code-analysys/hotspots.html /data/hotspots/
-   cp /usr/src/code-analysys/server.js /data/hotspots/
+   cp /usr/src/code-analysys/complexity-file-trend.html "$COMPLEXITY_TRENDS_FOLDER"
+   cp /usr/src/code-analysys/hotspots.html "$ANALYSIS_FOLDER"
+   cp /usr/src/code-analysys/server.js "$HOTSPOTS_FOLDER"
 
    logDone
 }
-
-cd /data
-mkdir -p hotspots
-mkdir -p hotspots/complexity-trends
 
 startDate=$1
 retrieveGitLogs $startDate
@@ -131,3 +139,5 @@ copyFiles
 
 log "The End."
 echo
+
+echo "Start the web server and go to http://localhost:9000/$ANALYSIS_FOLDER_NAME/hotspots.html or http://localhost:9000/$ANALYSIS_FOLDER_NAME/complexity-trends/complexity-file-trend.html?file=hotspot1.csv"
