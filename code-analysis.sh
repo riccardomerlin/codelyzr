@@ -9,14 +9,20 @@ function logDone {
 }
 
 function retrieveGitLogs {
+   exclusions="./"
+   FILE="/data/hotspots/.pathExclusions"
+   if [ -f "$FILE" ]; then
+      exclusions=$(sed 's/^/"\:\(exclude\)/' $FILE | sed 's/$/" /' | tr -d "\r\n")
+   fi
+
    startDate=$1
    if [ -z "$startDate" ]
    then
       log "Retrieving git logs since the beginning..."
-      git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames -- . ":(exclude)packges/*" ":(exclude)node_modules/*" ":(exclude)*/bower_components/*" ":(exclude)*/3rdParty/*" ":(exclude)*/bin/*" ":(exclude)*/test-bin/*" ":(exclude)*/obj/*" ":(exclude)dist/*" ":(exclude)_webtests/*" ":(exclude)WebTestSolution/*" > /data/hotspots/git.log
+      git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames -- . "$exclusions" > /data/hotspots/git.log
    else
       log "Retrieving git logs since ${startDate}..."
-      git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames --after=${startDate} -- . ":(exclude)packges/*" ":(exclude)node_modules/*" ":(exclude)*/bower_components/*" ":(exclude)*/3rdParty/*" ":(exclude)*/bin/*" ":(exclude)*/test-bin/*" ":(exclude)*/obj/*" ":(exclude)dist/*" ":(exclude)_webtests/*" ":(exclude)WebTestSolution/*" > /data/hotspots/git.log
+      git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames --after=${startDate} -- . "$exclusions" > /data/hotspots/git.log
    fi
    logDone
 }
@@ -51,32 +57,14 @@ function calculateChangeFrequencies {
 }
 
 function normalizeData {
-   log "Data normalization..."
-   sed --in-place --regexp-extended '/.*csproj.*/d' /data/hotspots/lines_by_file.csv
-   sed --in-place --regexp-extended '/.*package(-lock)?\.json.*/d' /data/hotspots/lines_by_file.csv
-   sed --in-place --regexp-extended '/.*yarn\.lock.*/d' /data/hotspots/lines_by_file.csv
-   sed --in-place --regexp-extended '/.*(app|Web|packages|Local)\.Config.*/d' /data/hotspots/lines_by_file.csv
-   sed --in-place --regexp-extended '/.*\.sln.*/d' /data/hotspots/lines_by_file.csv
-   sed --in-place --regexp-extended '/.*ChangeSchema\.sql.*/d' /data/hotspots/lines_by_file.csv
-   sed --in-place --regexp-extended '/.*(Changelog|ChangeLog|changelog|changeLog|CHANGELOG)\.md.*/d' /data/hotspots/lines_by_file.csv
-   sed --in-place --regexp-extended '/.*MigrationsList\.cs.*/d' /data/hotspots/lines_by_file.csv
-   sed --in-place --regexp-extended '/.*\.yml.*/d' /data/hotspots/lines_by_file.csv
-   sed --in-place --regexp-extended '/.*\.yaml.*/d' /data/hotspots/lines_by_file.csv
-   sed --in-place --regexp-extended '/.*appsettings\.json.*/d' /data/hotspots/lines_by_file.csv
-
-   sed --in-place --regexp-extended '/.*csproj.*/d' /data/hotspots/frequencies.csv
-   sed --in-place --regexp-extended '/.*package(-lock)?\.json.*/d' /data/hotspots/frequencies.csv
-   sed --in-place --regexp-extended '/.*yarn\.lock.*/d' /data/hotspots/frequencies.csv
-   sed --in-place --regexp-extended '/.*(app|Web|packages|Local)\.Config.*/d' /data/hotspots/frequencies.csv
-   sed --in-place --regexp-extended '/.*\.sln.*/d' /data/hotspots/frequencies.csv
-   sed --in-place --regexp-extended '/.*ChangeSchema\.sql.*/d' /data/hotspots/frequencies.csv
-   sed --in-place --regexp-extended '/.*(Changelog|ChangeLog|changelog|changeLog|CHANGELOG)\.md.*/d' /data/hotspots/frequencies.csv
-   sed --in-place --regexp-extended '/.*MigrationsList\.cs.*/d' /data/hotspots/frequencies.csv
-   sed --in-place --regexp-extended '/.*\.yml.*/d' /data/hotspots/frequencies.csv
-   sed --in-place --regexp-extended '/.*\.yaml.*/d' /data/hotspots/frequencies.csv
-   sed --in-place --regexp-extended '/.*appsettings\.json.*/d' /data/hotspots/frequencies.csv
-
-   logDone
+   FILE="/data/hotspots/.fileExclusions"
+   if [ -f "$FILE" ]; then
+      log "Data normalization..."
+      regex=$(sed 's/^/|/' $FILE | tr -d "\r\n" | sed -r 's/^\|//')
+      sed --in-place --regexp-extended "/$regex/d" /data/hotspots/lines_by_file.csv
+      sed --in-place --regexp-extended "/$regex/d" /data/hotspots/frequencies.csv
+      logDone
+   fi
 }
 
 function calculateHotspots {
