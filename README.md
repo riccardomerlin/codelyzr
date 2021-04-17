@@ -1,5 +1,5 @@
-Hot-spots analysis
-=================
+Codelyzr
+========
 
 Getting started
 ---------------
