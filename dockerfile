@@ -40,7 +40,7 @@ RUN mv "$(lein uberjar | sed -n 's/^Created \(.*standalone\.jar\)/\1/p')" app-st
 WORKDIR $dest
 RUN git clone https://github.com/riccardomerlin/git-miner.git git-miner
 WORKDIR $dest/git-miner
-RUN npm install
+RUN npm ci
 RUN npm install -g
 
 WORKDIR $dest
