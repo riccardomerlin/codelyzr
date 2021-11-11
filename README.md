@@ -2,7 +2,7 @@ Codelyzr
 ========
 Analysed any git repo to determine the top 10 hotspots based on how
 frequently files are changed and how many lines of code they contain.
-It looks for larg files changed frequently.
+It looks for large files changed frequently.
 That is what Adam Tornhill explains in his [reserch](https://codescene.com/hubfs/web_docs/CodeSceneUseCasesAndRoles.pdf)
 as the place where developers should focus their attention in order
 to maximise the effort of paying-off the debt on parts of
