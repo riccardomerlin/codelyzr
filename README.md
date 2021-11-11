@@ -85,7 +85,7 @@ docker run -v <full-path-of-local-git-repo>:/data --entry-point=/bin/bash -it co
 See [commands.sh](commands.sh) for the possible commands you can run.
 
 Credits
-=======
+-------
 This tool has been inspired by [Adam Tornhil](https://youtu.be/SdUewLCHWvU)
 and uses some of the free tools made available in his book
 [Software Design X-Ray](https://pragprog.com/titles/atevol/software-design-x-rays/)
