@@ -1,5 +1,12 @@
 Codelyzr
 ========
+Analysed any git repo to determine the top 10 hotspots based on how
+frequently files are changed and how many lines of code they contain.
+It looks for larg files changed frequently.
+That is what Adam Tornhill explains in his [reserch](https://codescene.com/hubfs/web_docs/CodeSceneUseCasesAndRoles.pdf)
+as the place where developers should focus their attention in order
+to maximise the effort of paying-off the debt on parts of
+the software that are more subject to changes.
 
 Getting started
 ---------------
@@ -76,3 +83,10 @@ To access the container form bash use the following:
 docker run -v <full-path-of-local-git-repo>:/data --entry-point=/bin/bash -it code-analysis
 ```
 See [commands.sh](commands.sh) for the possible commands you can run.
+
+Credits
+=======
+This tool has been inspired by [Adam Tornhil](https://youtu.be/SdUewLCHWvU)
+and uses some of the free tools made available in his book
+[Software Design X-Ray](https://pragprog.com/titles/atevol/software-design-x-rays/)
+like [Code Maat](https://github.com/adamtornhill/code-maat).
