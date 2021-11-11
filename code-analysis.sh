@@ -127,6 +127,7 @@ function copyFiles {
 }
 
 startDate=$1
+copyFiles
 retrieveGitLogs $startDate
 countLinesOfCode
 calculateChangeFrequencies # $startDate
@@ -135,7 +136,6 @@ calculateHotspots
 enclosingDiagrams
 top10Hotspots
 complexityTrends
-copyFiles
 
 log "The End."
 echo
