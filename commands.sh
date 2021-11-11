@@ -19,10 +19,10 @@ git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renam
 # frequencies 
 git log --format=format: --name-only | grep -vE '^$' | sort | uniq -c | sort -r > all_frequencies.txt
 # (possible NULL byte at the beginning, copy and paste data in a new file)
-docker run -v C:/Users/riccardo.merlin/source/repos/Kneat/gx:/data -it code-maat-app -l /data/git.log -c git2 -a revisions
+docker run -v C:/code:/data -it code-maat-app -l /data/git.log -c git2 -a revisions
 
 # code age
-docker run -v C:/Users/riccardo.merlin/source/repos/Kneat/gx:/data -it code-maat-app -l /data/git.log -c git2 -a age
+docker run -v C:/code:/data -it code-maat-app -l /data/git.log -c git2 -a age
 
 # *** CLOC ***
 # lines by file # >>> remove final row with SUM !!!
