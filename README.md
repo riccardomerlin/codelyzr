@@ -18,6 +18,36 @@ analysis starting from the specified date.
 ### Results
 All results are saved in the `hotspots` folder in your local repo.
 
+### Exclusions
+It is possible to exclude some paths from the analysis if not relevant
+so that the processing will take less time.
+To specify what paths should be excluded, create the 
+file `hotspots/.pathExclusions` and add one path to be excuded
+per line.
+
+Example:
+```
+dist/*
+coverage/*
+*/obj/*
+```
+
+In order to normalise data to detemine the top 10 hotspots,
+non relevant files must be exluded.
+To do so, create the file `hotspots/.fileExclusions`. This
+uses regular expressions and you can add one regex per line.
+
+Example:
+```
+clean up regex
+.*csproj.*\n
+.*package(-lock)?\.json.*\n
+.*yarn\.lock.*\n
+.*(app|Web|packages|Local)\.Config.*\n
+.*\.sln.*\n
+.*CHANGELOG.md.*\n
+```
+
 ### Web server
 In order to visualize enclosed diagrams for hotspots or complexity trends
 there is a web server available that runs on nodeJs.
@@ -29,11 +59,11 @@ node server.js
 It will run a local webserver that respond to http://localhost:9000
 To visualize enclosed diagrams go to
 ```
-http://localhost:9000/hotspots.html
+http://localhost:9000/<ANALYSIS_FOLDER_PATH>/hotspots.html
 ```
 To visualize complexity trends of the first 10 hotspots got to
 ```
-http://localhost:9000/complexity-trends/complexity-file-trend.html?file=hotspot[number].html
+http://localhost:9000/<ANALYSIS_FOLDER_PATH>/complexity-trends/complexity-file-trend.html?file=hotspot[number].html
 ```
 where [number] ranges from 1 to 10.
 
