@@ -80,7 +80,7 @@ Extras
 You can run the container and execute individual commands on the local repo.
 To access the container form bash use the following:
 ```bash
-docker run -v <full-path-of-local-git-repo>:/data --entry-point=/bin/bash -it code-analysis
+docker run -v <full-path-of-local-git-repo>:/data --entrypoint=/bin/bash -it code-analysis
 ```
 See [commands.sh](commands.sh) for the possible commands you can run.
 
