@@ -73,8 +73,8 @@ function normalizeData {
    if [ -f "$FILE" ]; then
       log "Data normalization..."
       regex=$(sed 's/^/|/' $FILE | tr -d "\r\n" | sed -r 's/^\|//')
-      sed --in-place --regexp-extended "/$regex/d" "$ANALYSIS_FOLDER/lines_by_file.csv"
-      sed --in-place --regexp-extended "/$regex/d" "$ANALYSIS_FOLDER/frequencies.csv"
+      sed --in-place --regexp-extended "/$regex/D" "$ANALYSIS_FOLDER/lines_by_file.csv"
+      sed --in-place --regexp-extended "/$regex/D" "$ANALYSIS_FOLDER/frequencies.csv"
       logDone
    fi
 }
