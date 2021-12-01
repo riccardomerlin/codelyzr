@@ -48,7 +48,7 @@ var svg = d3.select("body").append("svg")
           "translate(" + margin.left + "," + margin.top + ")");
 
 const querystring = new URLSearchParams(window.location.search)
-const fileName = querystring.get('file')
+const fileName = querystring.get('file') + '.csv'
 
 // Get the data
 d3.csv(fileName, function(error, data) {

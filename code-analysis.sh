@@ -140,4 +140,4 @@ complexityTrends
 log "The End."
 echo
 
-echo "Start the web server and go to http://localhost:9000/$ANALYSIS_FOLDER_NAME/hotspots.html or http://localhost:9000/$ANALYSIS_FOLDER_NAME/complexity-trends/complexity-file-trend.html?file=hotspot1.csv"
+echo "Start the web server and go to http://localhost:9000/$ANALYSIS_FOLDER_NAME/hotspots.html or http://localhost:9000/$ANALYSIS_FOLDER_NAME/complexity-trends/complexity-file-trend.html?file=hotspot1"

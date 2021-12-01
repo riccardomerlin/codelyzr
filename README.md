@@ -70,7 +70,7 @@ http://localhost:9000/<ANALYSIS_FOLDER_PATH>/hotspots.html
 ```
 To visualize complexity trends of the first 10 hotspots got to
 ```
-http://localhost:9000/<ANALYSIS_FOLDER_PATH>/complexity-trends/complexity-file-trend.html?file=hotspot[number].html
+http://localhost:9000/<ANALYSIS_FOLDER_PATH>/complexity-trends/complexity-file-trend.html?file=hotspot[number]
 ```
 where [number] ranges from 1 to 10.
 
