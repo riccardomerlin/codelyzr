@@ -27,7 +27,6 @@ function retrieveGitLogs {
       exclusions=$(sed 's/^/"\:\(exclude\)/' $FILE | sed 's/$/" /' | tr -d "\r\n")
    fi
 
-   startDate=$1
    if [ -z "$startDate" ]
    then
       log "Retrieving git logs since the beginning..."
@@ -106,11 +105,12 @@ function complexityTrends {
 
    cd /data
 
+   tabSize=$2
+
    for line in {1..10}
    do
       filePath=$(head -n $line $ANALYSIS_FOLDER/top10hotspots.txt | tail -1)
-      # filename=$(basename $filePath)
-      git-miner -- ${filePath} > "$COMPLEXITY_TRENDS_FOLDER/hotspot$line.csv"
+      git-miner --tab ${tabSize} -- ${filePath} > "$COMPLEXITY_TRENDS_FOLDER/hotspot$line.csv"
    done
 
    logDone
