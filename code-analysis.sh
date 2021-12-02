@@ -27,14 +27,9 @@ function retrieveGitLogs {
       exclusions=$(sed 's/^/"\:\(exclude\)/' $FILE | sed 's/$/" /' | tr -d "\r\n")
    fi
 
-   if [ -z "$startDate" ]
-   then
-      log "Retrieving git logs since the beginning..."
-      git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames -- . "$exclusions" > "$ANALYSIS_FOLDER/git.log"
-   else
-      log "Retrieving git logs since ${startDate}..."
-      git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames --after=${startDate} -- . "$exclusions" > "$ANALYSIS_FOLDER/git.log"
-   fi
+   log "Retrieving git logs since ${startDate}..."
+   git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames --after=${startDate} -- . "$exclusions" > "$ANALYSIS_FOLDER/git.log"
+   
    logDone
 }
 
@@ -105,12 +100,10 @@ function complexityTrends {
 
    cd /data
 
-   tabSize=$2
-
    for line in {1..10}
    do
       filePath=$(head -n $line $ANALYSIS_FOLDER/top10hotspots.txt | tail -1)
-      git-miner --tab ${tabSize} -- ${filePath} > "$COMPLEXITY_TRENDS_FOLDER/hotspot$line.csv"
+      git-miner --tab $tabSize -- ${filePath} > "$COMPLEXITY_TRENDS_FOLDER/hotspot$line.csv"
    done
 
    logDone
@@ -126,7 +119,21 @@ function copyFiles {
    logDone
 }
 
+
 startDate=$1
+if [ -z "$startDate" ]
+then
+   log "ERROR: startDate parameter missing. Please, add the date you want the analysis to start from in the format yyyy-mm-dd."
+   exit 1
+fi
+
+tabSize=$2
+if [ -z "$tabSize" ]
+then
+   log "ERROR: tabSize parameter missing. Please, provide the tab size of your codebase."
+   exit 1
+fi
+
 copyFiles
 retrieveGitLogs $startDate
 countLinesOfCode
