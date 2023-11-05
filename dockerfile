@@ -5,7 +5,7 @@ VOLUME /data
 RUN apk add --no-cache cloc
 
 RUN apk add --no-cache git
-RUN apk add --no-cache python2
+RUN apk add --no-cache python3
 RUN apk add --no-cache curl
 RUN apk add --no-cache bash
 RUN apk add --no-cache openjdk11
@@ -28,7 +28,7 @@ RUN mkdir -p $dest
 
 # install maat-scripts
 WORKDIR $dest
-RUN git clone https://github.com/adamtornhill/maat-scripts.git maat-scripts
+RUN git clone -b python3 https://github.com/adamtornhill/maat-scripts.git maat-scripts
 
 # install code-maat
 RUN git clone https://github.com/adamtornhill/code-maat.git code-maat
