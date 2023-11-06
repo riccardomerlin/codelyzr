@@ -24,11 +24,13 @@ function retrieveGitLogs {
    exclusions="./"
    FILE="$HOTSPOTS_FOLDER/.pathExclusions"
    if [ -f "$FILE" ]; then
-      exclusions=$(sed 's/^/"\:\(exclude\)/' $FILE | sed 's/$/" /' | tr -d "\r\n")
+      exclusions=$(sed 's/^/\:\(exclude\)/' $FILE | sed 's/$/ /' | tr -d "\r\n")
+
+      echo "Git-log path exclusions: ${exclusions}"
    fi
 
    log "Retrieving git logs since ${startDate}..."
-   git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames --after=${startDate} -- . "$exclusions" > "$ANALYSIS_FOLDER/git.log"
+   git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames --after=${startDate} -- . $exclusions > "$ANALYSIS_FOLDER/git.log"
    
    logDone
 }
@@ -65,8 +67,10 @@ function calculateChangeFrequencies {
 function normalizeData {
    FILE="$HOTSPOTS_FOLDER/.fileExclusions"
    if [ -f "$FILE" ]; then
-      log "Data normalization..."
       regex=$(sed 's/^/|/' $FILE | tr -d "\r\n" | sed -r 's/^\|//')
+      log "File exclusion regex: ${regex}"
+      echo
+      log "Data normalization..."
       sed --in-place --regexp-extended "/$regex/D" "$ANALYSIS_FOLDER/lines_by_file.csv"
       sed --in-place --regexp-extended "/$regex/D" "$ANALYSIS_FOLDER/frequencies.csv"
       logDone
