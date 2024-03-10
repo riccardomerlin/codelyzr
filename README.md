@@ -13,7 +13,7 @@ Getting started
 ---
 
 ```bash
-docker run -v <full_path_of_local_git_repo>:/data -it riccardomerlin/codelyzr:master <start_date> <tab_size>
+docker run -v <full_path_of_local_git_repo>:/data -it riccardomerlin/codelyzr:latest <start_date> <tab_size>
 ```
 
 `<start_date>`: format YYYY-MM-DD, it will restrict the
