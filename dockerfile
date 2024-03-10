@@ -1,4 +1,4 @@
-FROM node:alpine AS code-analysys
+FROM node:21.6.1-alpine
 VOLUME /data
 
 # install cloc - counts lines of code
