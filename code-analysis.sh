@@ -38,7 +38,7 @@ function retrieveGitLogs {
 function countLinesOfCode {
    log "Counting lines of code per file..."
 
-   cloc --vcs git --by-file --csv --quiet --unix --report-file="$ANALYSIS_FOLDER/lines_by_file.csv" --exclude-dir=coverage,3rdParty,SqlCompare,.vscode,packages,node_modules,bin,test-bin,_webtests,lib,services,web,obj,bower_components,WebTestSolution,dist
+   cloc --vcs git --by-file --csv --quiet --unix --report-file="$ANALYSIS_FOLDER/lines_by_file.csv"
    # remove last line that contain the SUM
    head -n -1 "$ANALYSIS_FOLDER/lines_by_file.csv" > "$ANALYSIS_FOLDER/temp.txt" ; mv "$ANALYSIS_FOLDER/temp.txt" "$ANALYSIS_FOLDER/lines_by_file.csv"
    
@@ -47,16 +47,6 @@ function countLinesOfCode {
 
 function calculateChangeFrequencies {
    log "Calculating change frequency per file..."
-
-   # alternative way that requires formatting to have a csv than can be read by maat-scripts
-   # cd /data
-   # startDate=$1
-   # if [ -z "$startDate" ]
-   # then
-   #    git log --format=format: --name-only | grep -vE '^$' | sort | uniq -c | sort -r > /data/hotspots/frequencies.csv
-   # else
-   #    git log --format=format: --name-only --after=${startDate} | grep -vE '^$' | sort | uniq -c | sort -r > /data/hotspots/frequencies.csv
-   # fi
 
    cd /usr/src/code-analysys
    java -jar code-maat/app-standalone.jar -l "$ANALYSIS_FOLDER/git.log" -c git2 -a revisions > "$ANALYSIS_FOLDER/frequencies.csv"
@@ -141,7 +131,7 @@ fi
 copyFiles
 retrieveGitLogs $startDate
 countLinesOfCode
-calculateChangeFrequencies # $startDate
+calculateChangeFrequencies
 normalizeData
 calculateHotspots
 enclosingDiagrams
@@ -151,4 +141,4 @@ complexityTrends
 log "The End."
 echo
 
-echo "Start the web server and go to http://localhost:9000/$ANALYSIS_FOLDER_NAME/hotspots.html or http://localhost:9000/$ANALYSIS_FOLDER_NAME/complexity-trends/complexity-file-trend.html?file=hotspot1"
+echo "Start the web server (node server.js) from the "hotstpots" folder and go to http://localhost:9000/$ANALYSIS_FOLDER_NAME/hotspots.html or http://localhost:9000/$ANALYSIS_FOLDER_NAME/complexity-trends/complexity-file-trend.html?file=hotspot1"
