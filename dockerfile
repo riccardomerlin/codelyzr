@@ -5,6 +5,9 @@ VOLUME /data
 RUN apk add --no-cache cloc
 
 RUN apk add --no-cache git
+# trust repositories not owned by the current user https://github.blog/2022-04-18-highlights-from-git-2-36/#stricter-repository-ownership-checks
+RUN git config --global --add safe.directory '*'
+
 RUN apk add --no-cache python3
 RUN apk add --no-cache curl
 RUN apk add --no-cache bash
