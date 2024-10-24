@@ -13,7 +13,7 @@ Getting started
 ---
 
 ```bash
-docker run -v <full_path_of_local_git_repo>:/data -it riccardomerlin/codelyzr:latest <start_date> <tab_size>
+docker run -v <full_path_of_local_git_repo>:/data riccardomerlin/codelyzr:latest <start_date> <tab_size>
 ```
 
 `<start_date>`: format YYYY-MM-DD, it will restrict the
@@ -33,7 +33,7 @@ Run Codelyzr from local repo
 git clone https://github.com/riccardomerlin/codelyzr.git
 cd codelyzr
 docker build --tag codelyzr:latest .
-docker run -v <full_path_of_local_git_repo>:/data -it codelyzr <start_date> <tab_size>
+docker run -v <full_path_of_local_git_repo>:/data codelyzr <start_date> <tab_size>
 ```
 
 Exclusions to speed up the analysis
