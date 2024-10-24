@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1></h1>
+
+<a href="/index.html">&lt; back</a>
+<ul>
+    <li><a href="top10hotspots.txt">Top 10 hotspots</a></li>
+    <li><a href="hotspots.html">Hotspots circular treemap</a></li>
+    <li><a href="freq_complexity.csv">CSV frequency/complexity data</a></li>
+    <li><a href="complexity-trends/complexity-file-trend.html?file=hotspot1">Complexity trend for top hotspot</a></li>
+    <li><a href="complexity-trends/complexity-file-trend.html?file=hotspot2">Complexity trend for 2nd hotspot</a></li>
+    <li><a href="complexity-trends/complexity-file-trend.html?file=hotspot3">Complexity trend for 3rd hotspot</a></li>
+    <li><a href="complexity-trends/complexity-file-trend.html?file=hotspot4">Complexity trend for 4th hotspot</a></li>
+    <li><a href="complexity-trends/complexity-file-trend.html?file=hotspot5">Complexity trend for 5th hotspot</a></li>
+    <li><a href="complexity-trends/complexity-file-trend.html?file=hotspot6">Complexity trend for 6th hotspot</a></li>
+    <li><a href="complexity-trends/complexity-file-trend.html?file=hotspot7">Complexity trend for 7th hotspot</a></li>
+    <li><a href="complexity-trends/complexity-file-trend.html?file=hotspot8">Complexity trend for 8th hotspot</a></li>
+    <li><a href="complexity-trends/complexity-file-trend.html?file=hotspot9">Complexity trend for 9th hotspot</a></li>
+    <li><a href="complexity-trends/complexity-file-trend.html?file=hotspot10">Complexity trend for 10th hotspot</a></li>
+</ul>
+<script>
+    var pageTitle = location.pathname.split("/")[1];
+    document.querySelector("h1").innerHTML = pageTitle;
+    document.title = pageTitle;
+</script>
+</body>
+</html>

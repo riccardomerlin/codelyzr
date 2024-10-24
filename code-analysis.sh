@@ -106,6 +106,8 @@ function complexityTrends {
 function copyFiles {
    log "Copying files..."
 
+   cp /usr/src/code-analysys/index.html "$HOTSPOTS_FOLDER"
+   cp /usr/src/code-analysys/analysis-index.html "$ANALYSIS_FOLDER/index.html"
    cp /usr/src/code-analysys/complexity-file-trend.html "$COMPLEXITY_TRENDS_FOLDER"
    cp /usr/src/code-analysys/hotspots.html "$ANALYSIS_FOLDER"
    cp /usr/src/code-analysys/server.js "$HOTSPOTS_FOLDER"
@@ -141,4 +143,4 @@ complexityTrends
 log "The End."
 echo
 
-echo "Start the web server (node server.js) from the "hotstpots" folder and go to http://localhost:9000/$ANALYSIS_FOLDER_NAME/hotspots.html or http://localhost:9000/$ANALYSIS_FOLDER_NAME/complexity-trends/complexity-file-trend.html?file=hotspot1"
+echo "Start the web server (node server.js) from the "hotstpots" folder and go to http://localhost:9000/index.html"

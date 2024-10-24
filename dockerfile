@@ -48,6 +48,8 @@ RUN npm install -g
 
 WORKDIR $dest
 # copy commands
+COPY index.html .
+COPY analysis-index.html .
 COPY hotspots.html .
 COPY complexity-file-trend.html .
 COPY code-analysis.sh .

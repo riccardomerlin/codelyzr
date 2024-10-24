@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Tech debt dashboard</h1>
+
+<ul id="analysesLinks"></ul>
+
+<script>
+    init();
+
+    function init() {
+        loadJSON(function(response) {
+            var analyses = JSON.parse(response).analyses;
+
+            for (var i = 0; i < analyses.length; i++) {
+                var analysis = analyses[i];
+                var li = document.createElement("li");
+                var a = document.createElement("a");
+                a.href = analysis.name + "/index.html";
+                a.innerHTML = analysis.name;
+                li.appendChild(a);
+
+                document.getElementById("analysesLinks").appendChild(li);
+            }
+        });
+    }
+
+    function loadJSON(callback) {
+        var xobj = new XMLHttpRequest();
+            xobj.overrideMimeType("application/json");
+            xobj.open('GET', 'analyses.json', true);
+            xobj.onreadystatechange = function () {
+                if (xobj.readyState == 4 && xobj.status == "200") {
+                    // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+                    callback(xobj.responseText);
+                }
+            };
+
+        xobj.send(null);
+    }
+</script>
+</body>
+</html>
