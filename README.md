@@ -1,7 +1,7 @@
 Codelyzr
 ===
 
-[![Publish Docker image](https://github.com/riccardomerlin/codelyzr/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/riccardomerlin/codelyzr/actions/workflows/main.yml) [![Known Vulnerabilities](https://snyk.io/test/github/riccardomerlin/codelyzr/badge.svg)](https://snyk.io/test/github/riccardomerlin/codelyzr)
+[![Publish Docker image](https://github.com/riccardomerlin/codelyzr/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/riccardomerlin/codelyzr/actions/workflows/main.yml)
 
 Analyses any git repo to determine the top 10 hotspots based on how
 frequently files are changed and how many lines of code they contain.
