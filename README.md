@@ -1,6 +1,8 @@
 Codelyzr
 ===
 
+[![Publish Docker image](https://github.com/riccardomerlin/codelyzr/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/riccardomerlin/codelyzr/actions/workflows/main.yml)
+
 Analyses any git repo to determine the top 10 hotspots based on how
 frequently files are changed and how many lines of code they contain.
 It looks for large files changed frequently.
