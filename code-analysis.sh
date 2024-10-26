@@ -162,4 +162,4 @@ complexityTrends
 log "The End."
 echo
 
-echo "Start the web server (node server.js) from the "hotstpots" folder and go to http://localhost:9000/index.html"
+echo "Start the web server (node server.js) from the "hotstpots" folder in the analyzed repository and go to http://localhost:9000/index.html"
