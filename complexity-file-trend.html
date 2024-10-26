@@ -4,7 +4,7 @@
 
 .line {
   fill: none;
-  stroke: steelblue;
+  stroke: blue;
   stroke-width: 2px;
 }
 
@@ -13,6 +13,8 @@
 
    <h1>Complexity trend</h1>
    <h2></h2>
+
+   <a href="../index.html">&lt; back</a>
 
    <ul>
       <li>
@@ -87,7 +89,6 @@ d3.csv(fileName, function(error, data) {
   svg.append("path")
       .data([data])
       .attr("class", "line")
-      .style("stroke", "blue")
       .attr("d", valueline);
 
   // Add the valueline2 path.

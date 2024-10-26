@@ -2,7 +2,7 @@
 <html>
 <body>
 
-<h1>Tech debt dashboard</h1>
+<h1>Code analyses dashboard</h1>
 
 <ul id="analysesLinks"></ul>
 
@@ -17,8 +17,8 @@
                 var analysis = analyses[i];
                 var li = document.createElement("li");
                 var a = document.createElement("a");
-                a.href = analysis.name + "/index.html";
-                a.innerHTML = analysis.name;
+                a.href = analysis + "/index.html";
+                a.innerHTML = analysis;
                 li.appendChild(a);
 
                 document.getElementById("analysesLinks").appendChild(li);
