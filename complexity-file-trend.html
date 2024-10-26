@@ -11,14 +11,27 @@
 </style>
 <body>
 
+   <h1>Complexity trend</h1>
+   <h2></h2>
+
+   <ul>
+      <li>
+        <span style="display: inline-block; width: 1em; height: 1em; background-color: blue; vertical-align: middle;"></span>
+        Indentation complexity
+      </li>
+      <li>
+        <span style="display: inline-block; width: 1em; height: 1em; background-color: red; vertical-align: middle;"></span>
+        Lines of code
+      </li>
+    </ul>
 <!-- load the d3.js library -->    	
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
 
 // set the dimensions and margins of the graph
-var margin = {top: 20, right: 20, bottom: 30, left: 50},
+var margin = {top: 20, right: 20, bottom: 60, left: 50},
     width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    height = 550 - margin.top - margin.bottom;
 
 // parse the date / time
 var parseTime = d3.timeParse("%d-%b-%y");
@@ -43,7 +56,7 @@ var valueline2 = d3.line()
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-  .append("g")
+    .append("g")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
 
@@ -53,6 +66,10 @@ const fileName = querystring.get('file') + '.csv'
 // Get the data
 d3.csv(fileName, function(error, data) {
   if (error) throw error;
+
+  var pageTitle = data[0].file;
+  document.querySelector("h2").innerHTML = pageTitle;
+  document.title = pageTitle;
 
   // format the data
   data.forEach(function(d) {
@@ -70,19 +87,26 @@ d3.csv(fileName, function(error, data) {
   svg.append("path")
       .data([data])
       .attr("class", "line")
+      .style("stroke", "blue")
       .attr("d", valueline);
 
   // Add the valueline2 path.
   svg.append("path")
-      .data([data])
-      .attr("class", "line")
-      .style("stroke", "red")
-      .attr("d", valueline2);
+         .data([data])
+         .attr("class", "line")
+         .style("stroke", "red")
+         .attr("d", valueline2)
 
   // Add the X Axis
   svg.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
+         .attr("transform", "translate(0," + height + ")")
+         .call(d3.axisBottom(x))
+     .append("text")
+         .attr("fill", "#000")
+         .attr("x", width / 2)
+         .attr("y", 35)
+         .attr("text-anchor", "middle")
+         .text("Time");
 
   // Add the Y Axis
   svg.append("g")
