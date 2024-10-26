@@ -1,4 +1,4 @@
-FROM node:21.6.1-alpine
+FROM node:22.9-alpine
 VOLUME /data
 
 # install cloc - counts lines of code
@@ -12,6 +12,7 @@ RUN apk add --no-cache python3
 RUN apk add --no-cache curl
 RUN apk add --no-cache bash
 RUN apk add --no-cache openjdk11
+RUN apk add --no-cache jq
 
 # install clojure
 RUN curl -O https://download.clojure.org/install/linux-install-1.10.3.822.sh
@@ -54,5 +55,6 @@ COPY hotspots.html .
 COPY complexity-file-trend.html .
 COPY code-analysis.sh .
 COPY server.js .
+COPY analyses.json .
 
 ENTRYPOINT ["bash", "code-analysis.sh"]

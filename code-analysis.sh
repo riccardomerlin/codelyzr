@@ -104,17 +104,35 @@ function complexityTrends {
 }
 
 function copyFiles {
-   log "Copying files..."
+    log "Copying files..."
 
-   cp /usr/src/code-analysys/index.html "$HOTSPOTS_FOLDER"
-   cp /usr/src/code-analysys/analysis-index.html "$ANALYSIS_FOLDER/index.html"
-   cp /usr/src/code-analysys/complexity-file-trend.html "$COMPLEXITY_TRENDS_FOLDER"
-   cp /usr/src/code-analysys/hotspots.html "$ANALYSIS_FOLDER"
-   cp /usr/src/code-analysys/server.js "$HOTSPOTS_FOLDER"
+    cp /usr/src/code-analysys/index.html "$HOTSPOTS_FOLDER"
+    cp /usr/src/code-analysys/analysis-index.html "$ANALYSIS_FOLDER/index.html"
+    cp /usr/src/code-analysys/complexity-file-trend.html "$COMPLEXITY_TRENDS_FOLDER"
+    cp /usr/src/code-analysys/hotspots.html "$ANALYSIS_FOLDER"
+    cp /usr/src/code-analysys/server.js "$HOTSPOTS_FOLDER"
+    if [ ! -f "$HOTSPOTS_FOLDER/analyses.json" ]; then
+      cp /usr/src/code-analysys/analyses.json "$HOTSPOTS_FOLDER"
+    fi
 
-   logDone
+    logDone
 }
 
+function addAnalysisToJson {
+  log "Updating analyses.json..."
+  local json_file="$HOTSPOTS_FOLDER/analyses.json"
+
+  # Read the JSON file
+  local json_content=$(cat "$json_file")
+
+  # Use jq to add the analysis folder name to the analyses array
+  local updated_json=$(echo "$json_content" | jq --arg folder "$ANALYSIS_FOLDER_NAME" '.analyses += [$folder]')
+
+  # Write the updated JSON back to the file
+  echo "$updated_json" > "$json_file"
+
+  logDone
+}
 
 startDate=$1
 if [ -z "$startDate" ]
@@ -131,6 +149,7 @@ then
 fi
 
 copyFiles
+addAnalysisToJson
 retrieveGitLogs $startDate
 countLinesOfCode
 calculateChangeFrequencies
