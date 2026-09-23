@@ -38,10 +38,27 @@ function retrieveGitLogs {
 function countLinesOfCode {
    log "Counting lines of code per file..."
 
-   cloc --vcs git --by-file --csv --quiet --unix --report-file="$ANALYSIS_FOLDER/lines_by_file.csv"
+   clocArgs=()
+
+   PATH_EXCLUSIONS_FILE="$HOTSPOTS_FOLDER/.pathExclusions"
+   if [ -f "$PATH_EXCLUSIONS_FILE" ]; then
+      # cloc --exclude-list-file needs exact literal file/dir paths, one per line
+      excludeListFile="$ANALYSIS_FOLDER/cloc_exclude_list.txt"
+      tr -d "\r" < "$PATH_EXCLUSIONS_FILE" > "$excludeListFile"
+      clocArgs+=(--exclude-list-file="$excludeListFile")
+   fi
+
+   FILE_EXCLUSIONS_FILE="$HOTSPOTS_FOLDER/.fileExclusions"
+   if [ -f "$FILE_EXCLUSIONS_FILE" ]; then
+      # .fileExclusions holds regex fragments, so use cloc's own regex-matching flag
+      fileExcludeRegex=$(sed 's/^/|/' "$FILE_EXCLUSIONS_FILE" | tr -d "\r\n" | sed -r 's/^\|//')
+      clocArgs+=(--fullpath --not-match-f="$fileExcludeRegex")
+   fi
+
+   cloc --vcs git --by-file --csv --quiet --unix "${clocArgs[@]}" --report-file="$ANALYSIS_FOLDER/lines_by_file.csv"
    # remove last line that contain the SUM
    head -n -1 "$ANALYSIS_FOLDER/lines_by_file.csv" > "$ANALYSIS_FOLDER/temp.txt" ; mv "$ANALYSIS_FOLDER/temp.txt" "$ANALYSIS_FOLDER/lines_by_file.csv"
-   
+
    logDone
 }
 
@@ -61,7 +78,6 @@ function normalizeData {
       log "File exclusion regex: ${regex}"
       echo
       log "Data normalization..."
-      sed --in-place --regexp-extended "/$regex/D" "$ANALYSIS_FOLDER/lines_by_file.csv"
       sed --in-place --regexp-extended "/$regex/D" "$ANALYSIS_FOLDER/frequencies.csv"
       logDone
    fi
