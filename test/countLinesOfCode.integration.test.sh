@@ -6,7 +6,6 @@ set -u
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TARGET_SCRIPT="$SCRIPT_DIR/../code-analysis.sh"
-source "$SCRIPT_DIR/test_helpers.sh"
 failures=0
 
 assert_has_file() {
@@ -29,7 +28,7 @@ assert_missing_file() {
 
 command -v npx >/dev/null 2>&1 || { echo "SKIP: npx not found, cannot run integration test"; exit 0; }
 
-workDir=$(new_case_dir "integration")
+workDir=$(mktemp -d)
 repoDir="$workDir/repo"
 analysisDir="$workDir/analysis"
 hotspotsDir="$workDir/hotspots"
@@ -75,6 +74,8 @@ echo "-- with exclusions --"
 assert_has_file "$csv" "\./app/main.js" "with exclusions: main.js still present"
 assert_missing_file "$csv" "main.spec.ts" "with exclusions: main.spec.ts excluded"
 assert_missing_file "$csv" "vendor/lib.js" "with exclusions: vendor/lib.js excluded"
+
+rm -rf "$workDir"
 
 if [ "$failures" -eq 0 ]; then
    echo "PASS: countLinesOfCode integration test passed"

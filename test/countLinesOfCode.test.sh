@@ -6,7 +6,6 @@ set -u
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_SCRIPT="$SCRIPT_DIR/../code-analysis.sh"
-source "$SCRIPT_DIR/test_helpers.sh"
 failures=0
 
 assert_contains() {
@@ -31,7 +30,7 @@ run_case() {
    local caseName="$1"; shift
    local setupFn="${1:-}"; [ $# -gt 0 ] && shift
 
-   local workDir; workDir=$(new_case_dir "$caseName")
+   local workDir; workDir=$(mktemp -d)
    local binDir="$workDir/bin"
    mkdir -p "$binDir"
 
