@@ -42,22 +42,17 @@ function countLinesOfCode {
 
    PATH_EXCLUSIONS_FILE="$HOTSPOTS_FOLDER/.pathExclusions"
    if [ -f "$PATH_EXCLUSIONS_FILE" ]; then
-      # .pathExclusions holds glob patterns (dist/*, */obj/*), so translate to
-      # regex and use cloc's dir-matching flag - --exclude-list-file only does
-      # exact literal path matches and silently ignores wildcards
-      pathExcludeRegex=$(sed -E 's/[.^$(){}+?|\\[\]]/\\&/g; s/\*/.*/g' "$PATH_EXCLUSIONS_FILE" | sed 's/^/|/' | tr -d "\r\n" | sed -r 's/^\|//')
-      clocArgs+=(--not-match-d="$pathExcludeRegex")
+      # cloc --exclude-list-file needs exact literal file/dir paths, one per line
+      excludeListFile="$ANALYSIS_FOLDER/cloc_exclude_list.txt"
+      tr -d "\r" < "$PATH_EXCLUSIONS_FILE" > "$excludeListFile"
+      clocArgs+=(--exclude-list-file="$excludeListFile")
    fi
 
    FILE_EXCLUSIONS_FILE="$HOTSPOTS_FOLDER/.fileExclusions"
    if [ -f "$FILE_EXCLUSIONS_FILE" ]; then
       # .fileExclusions holds regex fragments, so use cloc's own regex-matching flag
       fileExcludeRegex=$(sed 's/^/|/' "$FILE_EXCLUSIONS_FILE" | tr -d "\r\n" | sed -r 's/^\|//')
-      clocArgs+=(--not-match-f="$fileExcludeRegex")
-   fi
-
-   if [ -f "$PATH_EXCLUSIONS_FILE" ] || [ -f "$FILE_EXCLUSIONS_FILE" ]; then
-      clocArgs+=(--fullpath)
+      clocArgs+=(--fullpath --not-match-f="$fileExcludeRegex")
    fi
 
    cloc --vcs git --by-file --csv --quiet --unix "${clocArgs[@]}" --report-file="$ANALYSIS_FOLDER/lines_by_file.csv"
