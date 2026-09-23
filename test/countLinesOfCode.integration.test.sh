@@ -33,7 +33,7 @@ workDir=$(new_case_dir "integration")
 repoDir="$workDir/repo"
 analysisDir="$workDir/analysis"
 hotspotsDir="$workDir/hotspots"
-mkdir -p "$repoDir/app" "$repoDir/vendor" "$analysisDir" "$hotspotsDir"
+mkdir -p "$repoDir/app" "$repoDir/vendor" "$repoDir/app/bin/obj" "$analysisDir" "$hotspotsDir"
 
 git -C "$repoDir" init -q
 git -C "$repoDir" config user.email "test@test.com"
@@ -42,6 +42,7 @@ git -C "$repoDir" config user.name "test"
 printf 'function main() {\n  console.log("a");\n  console.log("b");\n  return 1;\n}\n' > "$repoDir/app/main.js"
 printf 'describe("main", () => {\n  it("works", () => {\n    expect(1).toBe(1);\n  });\n});\n' > "$repoDir/app/main.spec.ts"
 printf 'function lib() {\n  console.log("vendor");\n  return 2;\n}\n' > "$repoDir/vendor/lib.js"
+printf 'class Generated {\n  void Run() {}\n}\n' > "$repoDir/app/bin/obj/generated.cs"
 
 git -C "$repoDir" add -A
 git -C "$repoDir" commit -q -m "fixture"
@@ -66,15 +67,18 @@ echo "-- no exclusions --"
 assert_has_file "$csv" "\./app/main.js" "no exclusions: main.js present"
 assert_has_file "$csv" "\./app/main.spec.ts" "no exclusions: main.spec.ts present"
 assert_has_file "$csv" "\./vendor/lib.js" "no exclusions: vendor/lib.js present"
+assert_has_file "$csv" "\./app/bin/obj/generated.cs" "no exclusions: generated.cs present"
 
-# Case 2: .pathExclusions excludes vendor/, .fileExclusions excludes *.spec.ts
-printf 'vendor/\n' > "$hotspotsDir/.pathExclusions"
+# Case 2: .pathExclusions uses glob patterns like the real repo (vendor/*, */obj/*),
+# .fileExclusions excludes *.spec.ts
+printf 'vendor/*\n*/obj/*\n' > "$hotspotsDir/.pathExclusions"
 printf '\\.spec\\.ts$\n' > "$hotspotsDir/.fileExclusions"
 run_in_repo
 echo "-- with exclusions --"
 assert_has_file "$csv" "\./app/main.js" "with exclusions: main.js still present"
 assert_missing_file "$csv" "main.spec.ts" "with exclusions: main.spec.ts excluded"
-assert_missing_file "$csv" "vendor/lib.js" "with exclusions: vendor/lib.js excluded"
+assert_missing_file "$csv" "vendor/lib.js" "with exclusions: vendor/lib.js excluded (glob path)"
+assert_missing_file "$csv" "generated.cs" "with exclusions: generated.cs excluded (nested glob path)"
 
 if [ "$failures" -eq 0 ]; then
    echo "PASS: countLinesOfCode integration test passed"

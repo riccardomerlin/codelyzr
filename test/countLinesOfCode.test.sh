@@ -76,26 +76,19 @@ EOF
 
 # Case 1: no exclusion files -> cloc called with no exclusion flags
 run_case "no exclusions"
-assert_not_contains "$__LAST_ARGS" "--exclude-list-file" "no exclusions: exclude-list-file absent"
+assert_not_contains "$__LAST_ARGS" "--not-match-d" "no exclusions: not-match-d absent"
 assert_not_contains "$__LAST_ARGS" "--not-match-f" "no exclusions: not-match-f absent"
 grep -q "^SUM" "$__LAST_REPORT" && { echo "FAIL: SUM line not stripped"; failures=$((failures + 1)); }
 
-# Case 2: .pathExclusions -> exact-match exclude-list-file, literal content preserved
+# Case 2: .pathExclusions -> glob patterns translated to regex for --not-match-d
 setup_path_exclusions() {
-   printf "vendor/\ndocs/\n" > "$HOTSPOTS_FOLDER/.pathExclusions"
+   printf "dist/*\ncoverage/*\n*/obj/*\ndocs/*\n3rdParty/*\n" > "$HOTSPOTS_FOLDER/.pathExclusions"
 }
 run_case ".pathExclusions" setup_path_exclusions
-assert_contains "$__LAST_ARGS" "--exclude-list-file=" "pathExclusions: exclude-list-file present"
-excludeListPath=$(echo "$__LAST_ARGS" | grep -o -- '--exclude-list-file=[^ ]*' | sed 's/--exclude-list-file=//')
-if [ -f "$excludeListPath" ]; then
-   content=$(cat "$excludeListPath")
-   assert_contains "$content" "vendor/" "pathExclusions: content has vendor/"
-   assert_contains "$content" "docs/" "pathExclusions: content has docs/"
-else
-   echo "FAIL: exclude-list-file path not found on disk: $excludeListPath"
-   failures=$((failures + 1))
-fi
+assert_contains "$__LAST_ARGS" "--fullpath" "pathExclusions: --fullpath present"
+assert_contains "$__LAST_ARGS" "--not-match-d=dist/.*|coverage/.*|.*/obj/.*|docs/.*|3rdParty/.*" "pathExclusions: globs translated to regex, joined with |"
 assert_not_contains "$__LAST_ARGS" "--not-match-f" "pathExclusions only: not-match-f absent"
+assert_not_contains "$__LAST_ARGS" "--exclude-list-file" "pathExclusions: no longer uses exclude-list-file (globs unsupported there)"
 
 # Case 3: .fileExclusions -> regex-based --not-match-f, joined with |, matched full path
 setup_file_exclusions() {
@@ -104,7 +97,7 @@ setup_file_exclusions() {
 run_case ".fileExclusions" setup_file_exclusions
 assert_contains "$__LAST_ARGS" "--fullpath" "fileExclusions: --fullpath present"
 assert_contains "$__LAST_ARGS" '--not-match-f=\.spec\.ts$|generated_.*' "fileExclusions: regex joined with |"
-assert_not_contains "$__LAST_ARGS" "--exclude-list-file" "fileExclusions only: exclude-list-file absent"
+assert_not_contains "$__LAST_ARGS" "--not-match-d" "fileExclusions only: not-match-d absent"
 
 # Case 4: both files present -> both flags present together
 setup_both() {
@@ -112,7 +105,7 @@ setup_both() {
    setup_file_exclusions
 }
 run_case "both exclusions" setup_both
-assert_contains "$__LAST_ARGS" "--exclude-list-file=" "both: exclude-list-file present"
+assert_contains "$__LAST_ARGS" "--not-match-d=" "both: not-match-d present"
 assert_contains "$__LAST_ARGS" "--not-match-f=" "both: not-match-f present"
 
 if [ "$failures" -eq 0 ]; then
