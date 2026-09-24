@@ -1,7 +1,7 @@
 #!/bin/bash
 
-cd /data
-DATA_FOLDER="/data"
+DATA_FOLDER="${DATA_FOLDER:-/data}"
+cd "$DATA_FOLDER"
 HOTSPOTS_FOLDER="$DATA_FOLDER/hotspots"
 mkdir -p "$HOTSPOTS_FOLDER"
 ANALYSIS_FOLDER_NAME=analysis-$(date +"%Y-%m-%dT%H-%M-%S")
@@ -134,32 +134,34 @@ function addAnalysisToJson {
   logDone
 }
 
-startDate=$1
-if [ -z "$startDate" ]
-then
-   log "ERROR: startDate parameter missing. Please, add the date you want the analysis to start from in the format yyyy-mm-dd."
-   exit 1
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+   startDate=$1
+   if [ -z "$startDate" ]
+   then
+      log "ERROR: startDate parameter missing. Please, add the date you want the analysis to start from in the format yyyy-mm-dd."
+      exit 1
+   fi
+
+   tabSize=$2
+   if [ -z "$tabSize" ]
+   then
+      log "ERROR: tabSize parameter missing. Please, provide the tab size of your codebase."
+      exit 1
+   fi
+
+   copyFiles
+   addAnalysisToJson
+   retrieveGitLogs $startDate
+   countLinesOfCode
+   calculateChangeFrequencies
+   normalizeData
+   calculateHotspots
+   enclosingDiagrams
+   top10Hotspots
+   complexityTrends
+
+   log "The End."
+   echo
+
+   echo "Start the web server (node server.js) from the "hotstpots" folder in the analyzed repository and go to http://localhost:9000/index.html"
 fi
-
-tabSize=$2
-if [ -z "$tabSize" ]
-then
-   log "ERROR: tabSize parameter missing. Please, provide the tab size of your codebase."
-   exit 1
-fi
-
-copyFiles
-addAnalysisToJson
-retrieveGitLogs $startDate
-countLinesOfCode
-calculateChangeFrequencies
-normalizeData
-calculateHotspots
-enclosingDiagrams
-top10Hotspots
-complexityTrends
-
-log "The End."
-echo
-
-echo "Start the web server (node server.js) from the "hotstpots" folder in the analyzed repository and go to http://localhost:9000/index.html"
