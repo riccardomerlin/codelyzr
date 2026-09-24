@@ -30,7 +30,7 @@ function retrieveGitLogs {
    fi
 
    log "Retrieving git logs since ${startDate}..."
-   git log --all --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames --after=${startDate} -- . $exclusions > "$ANALYSIS_FOLDER/git.log"
+   git log --numstat --date=short --pretty=format:'--%h--%ad--%aN' --no-renames --after=${startDate} -- . $exclusions > "$ANALYSIS_FOLDER/git.log"
    
    logDone
 }

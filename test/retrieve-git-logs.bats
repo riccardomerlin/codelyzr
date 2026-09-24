@@ -100,3 +100,22 @@ use_repo_as_data_folder() {
    [[ "${lines[0]}" =~ ^--[0-9a-f]+--[0-9]{4}-[0-9]{2}-[0-9]{2}--.+$ ]]
    [[ "${lines[1]}" =~ ^[0-9]+$'\t'[0-9]+$'\t'.*file\.txt$ ]]
 }
+
+@test "retrieveGitLogs excludes commits only reachable from a branch other than the current one" {
+   local repo_dir
+   repo_dir=$(create_fixture_repo)
+   commit_file_at_date "$repo_dir" "main-only.txt" "2020-06-01T00:00:00"
+   local original_branch
+   original_branch=$(git -C "$repo_dir" symbolic-ref --short HEAD)
+   git -C "$repo_dir" checkout --quiet -b other-branch
+   commit_file_at_date "$repo_dir" "other-branch-only.txt" "2020-06-02T00:00:00"
+   git -C "$repo_dir" checkout --quiet "$original_branch"
+
+   use_repo_as_data_folder "$repo_dir"
+   startDate="2020-01-01"
+
+   retrieveGitLogs
+
+   run grep --fixed-strings "other-branch-only.txt" "$ANALYSIS_FOLDER/git.log"
+   [ "$status" -eq 1 ]
+}
